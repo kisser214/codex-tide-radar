@@ -1,0 +1,24 @@
+services:
+  codex-reset-radar:
+    image: python:3.12-alpine
+    container_name: codex-reset-radar
+    restart: unless-stopped
+    working_dir: /app
+    command: ["python", "-u", "app.py"]
+    environment:
+      PORT: "8080"
+      POLL_SECONDS: "600"
+      DATA_DIR: "/data"
+      TZ: "Asia/Shanghai"
+    volumes:
+      - ./app.py:/app/app.py:ro
+      - ./static:/app/static:ro
+      - ./data:/data
+    ports:
+      - "17867:8080"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "-", "http://127.0.0.1:8080/healthz"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
