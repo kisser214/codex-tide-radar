@@ -1,0 +1,605 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Codex 雷达 · 大春局域网版</title>
+  <style>
+    :root{
+      color-scheme:dark;--bg:#08121f;--panel:#101c2d;--panel2:#142238;
+      --line:#304863;--line2:#263b55;--text:#eff6ff;--muted:#9aafc7;
+      --blue:#78b8ff;--cyan:#55d5e8;--green:#35d6ac;--orange:#ffb35c;
+      --red:#ff6577;--yellow:#ffd166
+    }
+    *{box-sizing:border-box}html{scroll-behavior:smooth}
+    body{margin:0;background:radial-gradient(circle at 50% -10%,#19304d 0,#0a1422 38%,#07101b 100%);color:var(--text);font:14px/1.6 system-ui,-apple-system,"Segoe UI","Microsoft YaHei",sans-serif}
+    a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
+    .shell{max-width:1380px;margin:auto;padding:25px 18px 70px}
+    header{display:flex;justify-content:space-between;gap:20px;align-items:center;margin-bottom:18px}
+    .brand{display:flex;gap:13px;align-items:center}.logo{width:42px;height:42px;border:1px solid #37618c;border-radius:12px;display:grid;place-items:center;background:#101f34;font-size:22px}
+    h1{font-size:25px;margin:0}.sub{color:var(--muted);font-size:13px;margin-top:2px}
+    .live{border:1px solid #28644f;background:#0d2c25;color:#6df0bd;border-radius:999px;padding:6px 12px;white-space:nowrap}
+    .quick{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:16px}.quick a{padding:7px 11px;border:1px solid var(--line);border-radius:9px;background:#0d1726}
+    .panel{background:linear-gradient(180deg,rgba(17,27,44,.97),rgba(10,18,31,.97));border:1px solid var(--line);border-radius:15px;padding:17px;margin-top:13px;box-shadow:0 18px 60px rgba(0,0,0,.14)}
+    .panel-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:13px}.panel h2{margin:0;font-size:20px}.stamp{font-size:12px;color:var(--muted)}
+    .hero{display:grid;grid-template-columns:1.35fr .72fr .72fr .72fr;gap:12px}
+    .hero-card,.signal-card,.tweet,.metric{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:15px}
+    .eyebrow{font-size:12px;color:var(--muted);font-weight:700}.hero-title{font-size:23px;font-weight:800;margin:5px 0}.hero-copy{color:#c2d1e5}
+    .prob{font-size:34px;font-weight:850;margin:4px 0}.prob.low{color:var(--green)}.prob.mid{color:var(--yellow)}.prob.high{color:var(--red)}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+    .signal-card{position:relative;overflow:hidden}.signal-card:before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--orange)}.signal-card.ok:before{background:var(--green)}
+    .signal-card h3{font-size:20px;margin:6px 0}.pill{display:inline-flex;align-items:center;border:1px solid #37506f;border-radius:999px;padding:2px 8px;color:#b9cee7;font-size:11px}
+    .pill.green{color:#59e8b6;border-color:#235f4c;background:#0c2a23}.pill.orange{color:#ffbc62;border-color:#70491b;background:#2a1d0c}.pill.red{color:#ff8f9d;border-color:#71303a;background:#2a1017}
+    .tweet{min-height:170px;border-top:2px solid #5ba7ff}.tweet-top{display:flex;justify-content:space-between;gap:8px}.tweet h3{font-size:15px;margin:4px 0 12px;color:#8fc3ff}.interpret{background:#1b1d23;border-radius:8px;padding:10px;color:#f2d8ae}.interpret b{display:block;color:#ff9f57;font-size:12px;margin-bottom:4px}
+    table{width:100%;border-collapse:collapse;overflow:hidden;border-radius:10px}th,td{text-align:left;padding:10px 11px;border-bottom:1px solid var(--line2)}th{color:#9cc8ff;background:#101b2d;font-size:12px}td strong{color:#76beff}
+    .trend-summary{display:flex;justify-content:space-between;gap:12px;align-items:center;margin:12px 0 4px}.delta.down{color:var(--green)}.delta.up{color:var(--red)}
+    .chart{width:100%;height:190px;display:block}.chart-grid{stroke:#263a53;stroke-width:1}.chart-line{fill:none;stroke:#5baaff;stroke-width:3}.chart-area{fill:url(#area)}.chart-dot{fill:#61b3ff;stroke:#07101d;stroke-width:2}.chart-label{fill:#8fa7c3;font-size:11px}
+    .metric .value{font-size:24px;font-weight:800;margin-top:4px;color:#76beff}.metric .hint{color:var(--muted);font-size:12px}
+    .fast-note,.notice{color:var(--muted);font-size:12px}.health-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.mini-chart{height:90px;width:100%;display:block}.alert-box{border:1px solid #71303a;background:#2a1017;color:#ffb0ba;padding:10px;border-radius:9px}.ok-box{border:1px solid #28644f;background:#0d2c25;color:#73e6bb;padding:10px;border-radius:9px}
+    .events{display:grid;gap:8px}.event{display:grid;grid-template-columns:105px 1fr 50px;gap:14px;align-items:center;border-bottom:1px solid var(--line2);padding:10px 0}.event:last-child{border:0}.event-date{color:#9dc5f5}.event-copy{color:#d7e4f4}
+    .source-warning{border:1px solid #715229;background:#2a1e0d;color:#ffd293;padding:9px 11px;border-radius:8px;margin-top:10px}
+    .reset-source{display:flex;align-items:center;gap:10px;margin:2px 0 12px}.reset-source-avatar{width:38px;height:38px;border-radius:50%;object-fit:cover;border:1px solid #d9d4cf;background:#d7b693}.reset-source-copy{color:var(--muted);font-size:13px}.reset-source-copy b{color:var(--text)}
+    .reset-overview{display:grid;grid-template-columns:1.35fr .72fr .72fr .72fr;gap:8px;margin-bottom:7px}.overview-card{min-height:82px;background:#0e192a;border:1px solid var(--line);border-radius:10px;padding:7px 9px}.overview-current{border-left:4px solid var(--orange)}.overview-title{font-size:18px;font-weight:850;color:#76beff;line-height:1.25;margin:2px 0}.overview-value{font-size:25px;font-weight:850;color:var(--green);line-height:1.2;margin:3px 0}.overview-value.yellow{color:var(--yellow)}.overview-copy{color:#c0cee0;font-size:10px;line-height:1.3}.reset-dashboard-grid{display:block}
+    .latest-reset-card,.calendar-card,.reset-stat,.tibo-item{background:var(--panel2);border:1px solid var(--line);border-radius:12px}
+    .latest-reset-card,.calendar-card{padding:9px}
+    .latest-reset-card{position:relative;overflow:hidden;min-height:275px}.latest-reset-card:before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--orange)}
+    .latest-reset-card.complete:before{background:var(--green)}.latest-reset-card.preview:before{background:var(--blue)}
+    .signal-card-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.signal-name{display:flex;align-items:center;gap:7px;font-size:16px}.signal-icon{font-size:18px;color:#c7d7e9}.signal-count{border:1px solid #70491b;background:#2a1d0c;color:#ffbc62;border-radius:999px;padding:2px 8px;font-size:11px;font-weight:700}.previous-reset{min-width:112px;border:1px solid #4b4b48;background:#23262c;border-radius:9px;padding:4px 6px;text-align:left;line-height:1.1}.previous-reset span,.previous-reset small{display:block;color:var(--muted);font-size:9px}.previous-reset strong{display:block;color:var(--text);font-size:13px;margin:1px 0}.signal-status{display:flex;align-items:center;gap:8px;margin-top:6px}.signal-status .stamp{margin-left:auto}.latest-reset-card h3{font-size:17px;line-height:1.25;margin:4px 0;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}.latest-copy{color:#c6d6e8;min-height:0;line-height:1.3;font-size:13px;max-height:34px;overflow:hidden}.latest-meta{color:var(--muted);font-size:10px;margin-top:5px}.latest-link{display:inline-block;margin-top:2px}
+    .latest-reset-card{min-height:0}
+    .calendar-card{container-type:inline-size;--calendar-cell:clamp(12px,1.63cqw,22px);--calendar-gap:3px;overflow:hidden;margin-top:7px}.calendar-head{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}.calendar-head h3{font-size:16px;margin:0 0 2px}.calendar-head-meta{display:flex;align-items:center;gap:6px}.calendar-scroll{overflow-x:auto;padding:5px 2px 2px;overscroll-behavior-x:contain}.calendar-months{display:grid;gap:0;color:var(--muted);font-size:9px;min-width:740px;margin-left:25px}.calendar-month{white-space:nowrap}.calendar-grid{display:grid;grid-template-rows:repeat(7,var(--calendar-cell));grid-auto-flow:column;grid-auto-columns:var(--calendar-cell);gap:var(--calendar-gap);min-width:740px;align-items:center}.calendar-weekday{display:grid;grid-template-rows:repeat(7,var(--calendar-cell));gap:var(--calendar-gap);color:var(--muted);font-size:8px;text-align:center;margin-right:5px;line-height:var(--calendar-cell)}.calendar-cell{width:var(--calendar-cell);height:var(--calendar-cell);border-radius:4px;background:#26364b;border:1px solid rgba(255,255,255,.03)}.calendar-cell.reset{background:#ff8750}.calendar-cell.credit{background:#6799ee}.calendar-cell.preview{background:#9aa7b7}.calendar-legend{display:flex;gap:10px;flex-wrap:wrap;color:var(--muted);font-size:10px;margin-top:3px}.calendar-legend span{display:inline-flex;align-items:center;gap:4px}.calendar-legend i{display:inline-block;width:9px;height:9px;border-radius:3px;background:#26364b}.calendar-legend .reset{background:#ff8750}.calendar-legend .credit{background:#6799ee}.calendar-legend .preview{background:#9aa7b7}
+    .reset-stats-head{display:flex;justify-content:space-between;align-items:end;gap:12px;margin-top:5px;margin-bottom:4px}.reset-stats-head h3{font-size:15px;margin:1px 0 0}.reset-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.reset-stat{padding:6px 9px;position:relative;overflow:hidden}.reset-stat:before{content:"";position:absolute;inset:0 auto 0 0;width:3px;background:var(--blue);opacity:.9}.reset-stat:nth-child(1){background:#202d3a}.reset-stat:nth-child(1):before{background:var(--orange)}.reset-stat:nth-child(2){background:#292b3e}.reset-stat:nth-child(2):before{background:#d59bc2}.reset-stat:nth-child(3){background:#1d3443}.reset-stat:nth-child(3):before{background:var(--blue)}.reset-stat .label{color:#d0dceb;font-size:10px}.reset-stat .value{font-size:21px;font-weight:850;line-height:1.1;margin:1px 0}.reset-stat .hint{color:#b8c7d8;font-size:9px}
+    .tibo-feed{display:grid;gap:4px}.tibo-item{display:grid;grid-template-columns:26px 1fr;gap:6px;padding:5px 7px;position:relative}.tibo-item:before{content:"";position:absolute;left:20px;top:29px;bottom:-5px;width:1px;background:#36506e}.tibo-item:last-child:before{display:none}.tibo-avatar{width:22px;height:22px;border-radius:50%;display:block;object-fit:cover;background:linear-gradient(145deg,#f1d2aa,#735d64);color:#231b21;font-weight:800;font-size:10px;z-index:1}.tibo-avatar-fallback{display:grid;place-items:center}.tibo-content{min-width:0}.tibo-top{display:flex;justify-content:space-between;gap:8px;align-items:center}.tibo-text{font-size:11px;line-height:1.3;color:#edf4ff;margin:2px 0;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}.tibo-footer{display:flex;justify-content:space-between;gap:8px;align-items:center;color:var(--muted);font-size:9px}.tibo-footer a{white-space:nowrap}.reset-warning{margin-top:6px}
+    /* 模块分色：以中性深色为底，用少量语义色区分信息，不靠渐变堆装饰。 */
+    #reset.panel{background:#101e30;border-color:#3e5b79;border-top:2px solid #6aa9ff}
+    #fast.panel{background:#171c31;border-color:#4b5278;border-top:2px solid #9a8cff}
+    #model.panel{background:#14222d;border-color:#3e6170;border-top:2px solid #59d4e5}
+    #health.panel{background:#11282a;border-color:#3e716c;border-top:2px solid #4ed3a6}
+    #quota.panel{background:#241d35;border-color:#69557f;border-top:2px solid #f0aa68}
+    #fast .panel-head h2{color:#b8b0ff}
+    #model .panel-head h2{color:#8de3eb}
+    #health .panel-head h2{color:#82e5c0}
+    #quota .panel-head h2{color:#ffc17d}
+    #reset .overview-card{box-shadow:0 8px 18px rgba(0,0,0,.14)}
+    #reset .overview-current{background:#352817;border-color:#936c2e}
+    #reset .overview-current .overview-title{color:#ffd17f}
+    #reset .overview-card:nth-child(2){background:#102f3b;border-color:#37798c}
+    #reset .overview-card:nth-child(2) .overview-value{color:#5cdae0}
+    #reset .overview-card:nth-child(3){background:#30243d;border-color:#795e91}
+    #reset .overview-card:nth-child(3) .overview-value{color:#d3abff}
+    #reset .overview-card:nth-child(4){background:#12372f;border-color:#438473}
+    #reset .overview-card:nth-child(4) .overview-value{color:#65e4b8}
+    #reset .reset-stats-head h3{color:#f0c178}
+    #reset .reset-stat{box-shadow:0 6px 14px rgba(0,0,0,.12)}
+    #reset .reset-stat:nth-child(1){background:#382b19;border-color:#8e6a32}
+    #reset .reset-stat:nth-child(2){background:#36263d;border-color:#7b5e8b}
+    #reset .reset-stat:nth-child(3){background:#193848;border-color:#4b7f91}
+    #reset .latest-reset-card{background:#142b45;border-color:#4e7eab;box-shadow:0 10px 22px rgba(0,0,0,.16)}
+    #reset .latest-reset-card.complete{background:#113a31;border-color:#458773}
+    #reset .latest-reset-card.preview{background:#173653;border-color:#5d8db8}
+    #reset .latest-reset-card h3{color:#f3f7ff}
+    #reset .tibo-feed{border-left:2px solid #477093;padding-left:7px}
+    #reset .tibo-item{background:#142942;border-color:#416384;box-shadow:0 5px 12px rgba(0,0,0,.12)}
+    #reset .tibo-item:nth-child(2){background:#18283f;border-color:#4b6283}
+    #reset .tibo-item:nth-child(3){background:#17313a;border-color:#46747b}
+    #reset .calendar-card{background:#0c1726;border-color:#3e5b79;box-shadow:0 8px 18px rgba(0,0,0,.14)}
+    #reset .calendar-head h3{color:#dcecff}
+    #reset .calendar-cell{background:#273b55}
+    #reset .calendar-cell.reset{background:#ff8750}
+    #reset .calendar-cell.credit{background:#6799ee}
+    #reset .calendar-cell.preview{background:#a2adbb}
+    footer{color:#7187a3;font-size:12px;margin-top:18px;text-align:center}
+    @media(max-width:1100px){.calendar-card{--calendar-cell:13px;--calendar-gap:4px}}
+    @media(max-width:850px){.reset-overview{grid-template-columns:1fr 1fr}.grid3,.grid4{grid-template-columns:1fr 1fr}}
+    @media(max-width:600px){header{align-items:flex-start}.grid2,.grid3,.grid4,.reset-stats,.reset-overview{grid-template-columns:1fr}.shell{padding:16px 10px 45px}.tibo-item{grid-template-columns:30px 1fr}.tibo-item:before{left:23px}.signal-card-head{flex-direction:column}.previous-reset{min-width:0}.calendar-head-meta{align-items:flex-end;flex-direction:column;gap:3px}.context-footer,.reset-stats-head{align-items:flex-start;flex-direction:column;gap:4px}}
+
+    /* ui-ux-pro-max visual pass: Signal Ledger / light operations canvas. */
+    :root{
+      color-scheme:light;
+      --bg:#f2f5f8;--panel:#ffffff;--panel2:#f7fafc;
+      --line:#cbd8e2;--line2:#e4ebf0;--text:#14263a;--muted:#607588;
+      --blue:#1e74c5;--cyan:#2c8b77;--green:#2a8a59;--orange:#c98b2c;
+      --red:#c84b4b;--yellow:#b07c11
+    }
+    body{background:#f2f5f8;color:var(--text);font-family:"Fira Sans","Microsoft YaHei",system-ui,-apple-system,"Segoe UI",sans-serif}
+    a{color:#1e74c5}
+    .shell{max-width:1460px;padding:18px 18px 58px}
+    header{background:#122b42;border:1px solid #173b58;border-radius:14px;padding:13px 20px;margin-bottom:10px;min-height:68px;box-shadow:0 6px 18px rgba(18,43,66,.12)}
+    .brand{gap:11px}.logo{width:38px;height:38px;border-color:#7fa9cb;border-radius:11px;background:#dcebf8;color:#1e74c5;font-size:20px}
+    h1{font-size:24px;color:#f7fafc}.sub{color:#b7cbe0}
+    .live{border-color:#8ccbac;background:#e1f5eb;color:#1e7d55;padding:5px 11px;font-weight:700}
+    .live.red{border-color:#e3a0a0;background:#fdeaea;color:#a73c3c}
+    .quick{gap:7px;margin-bottom:10px}.quick a{padding:6px 10px;background:#fff;border-color:#c7d5df;color:#315873;border-radius:8px;box-shadow:0 2px 6px rgba(28,57,82,.04)}.quick a:hover{background:#edf5fb;text-decoration:none}
+    .panel{background:#fff;border:1px solid #d0dce5;border-radius:14px;padding:16px;margin-top:11px;box-shadow:0 7px 24px rgba(28,57,82,.06)}
+    .panel-head{margin-bottom:11px}.panel h2{color:#17344c}.stamp{color:#607588}.eyebrow{color:#5b7184}
+    #reset.panel{background:#f7fbff;border-color:#b9d0e2;border-top:4px solid #1e74c5}
+    #fast.panel{background:#f8f7ff;border-color:#c9c4e8;border-top:4px solid #7563c2}
+    #model.panel{background:#f3fbfb;border-color:#bcdedb;border-top:4px solid #2c8b77}
+    #health.panel{background:#f3faf6;border-color:#c0dfcc;border-top:4px solid #2a8a59}
+    #quota.panel{background:#fff9f1;border-color:#ead4b7;border-top:4px solid #c98b2c}
+    #fast .panel-head h2{color:#5f50a8}#model .panel-head h2{color:#227965}#health .panel-head h2{color:#26754d}#quota .panel-head h2{color:#9b681d}
+    .hero-card,.signal-card,.tweet,.metric{background:#fff;border-color:#ccd9e2;color:var(--text);box-shadow:0 3px 10px rgba(28,57,82,.04)}
+    .overview-card{background:#fff;border-color:#cbd8e2;color:var(--text);box-shadow:0 3px 10px rgba(28,57,82,.04)}
+    .overview-current{background:#fff5d9;border-color:#e3c47a;border-left:4px solid #d49b3a}
+    .overview-current .overview-title{color:#263b52}
+    .overview-card:nth-child(2){background:#e5f5f2;border-color:#b7ddd5}.overview-card:nth-child(2) .value{color:#2c8b77}
+    .overview-card:nth-child(3){background:#eee9ff;border-color:#d2c7f3}.overview-card:nth-child(3) .value{color:#735cb4}
+    .overview-card:nth-child(4){background:#f1f7f4;border-color:#cfe2d8}.overview-card:nth-child(4) .value{color:#5b7a6c;font-size:22px}
+    #reset .overview-card.overview-current{background:#fff5d9;border-color:#e3c47a;border-left:4px solid #d49b3a}
+    #reset .overview-card:nth-child(2){background:#e5f5f2;border-color:#b7ddd5}
+    #reset .overview-card:nth-child(3){background:#eee9ff;border-color:#d2c7f3}
+    #reset .overview-card:nth-child(4){background:#f1f7f4;border-color:#cfe2d8}
+    #reset .overview-current .overview-title{color:#263b52}
+    #reset .overview-card:nth-child(2) .value{color:#2c8b77}#reset .overview-card:nth-child(3) .value{color:#735cb4}#reset .overview-card:nth-child(4) .value{color:#5b7a6c;font-size:22px}
+    .overview-card .value{display:block;font-size:29px;font-weight:850;line-height:1.12;margin:3px 0;color:#17344c}.overview-copy{color:#5e7386}
+    .prob.low,.value.low{color:#2c8b77}.prob.mid,.value.mid{color:#a9751c}.prob.high,.value.high{color:#c84b4b}
+    .reset-stats-head h3{color:#2b526f}.reset-stat{background:#fff;border-color:#ccd9e2;box-shadow:0 3px 9px rgba(28,57,82,.04)}
+    .reset-stat:nth-child(1){background:#f5f1e7;border-color:#ded0b0}.reset-stat:nth-child(1):before{background:#d49b3a}
+    .reset-stat:nth-child(2){background:#f3f1f8;border-color:#d5cde4}.reset-stat:nth-child(2):before{background:#8a70b4}
+    .reset-stat:nth-child(3){background:#edf4f7;border-color:#c6d8e1}.reset-stat:nth-child(3):before{background:#5c91b1}
+    #reset .reset-stat:nth-child(1){background:#f5f1e7;border-color:#ded0b0}#reset .reset-stat:nth-child(1):before{background:#d49b3a}
+    #reset .reset-stat:nth-child(2){background:#f3f1f8;border-color:#d5cde4}#reset .reset-stat:nth-child(2):before{background:#8a70b4}
+    #reset .reset-stat:nth-child(3){background:#edf4f7;border-color:#c6d8e1}#reset .reset-stat:nth-child(3):before{background:#5c91b1}
+    .reset-stat .label{color:#53697b}.reset-stat .value{color:#17344c}.reset-stat .hint{color:#6a7d8d}
+    .latest-reset-card{background:#dcebfA;border-color:#8dbbe2;box-shadow:0 6px 15px rgba(36,93,143,.08);min-height:0}
+    .latest-reset-card:before{background:#1e74c5}.latest-reset-card.complete{background:#e5f4eb;border-color:#a9d2b9}.latest-reset-card.complete:before{background:#2a8a59}.latest-reset-card.preview{background:#dcebfA;border-color:#8dbbe2}.latest-reset-card.preview:before{background:#1e74c5}
+    #reset .latest-reset-card{background:#dcebfA;border-color:#8dbbe2;box-shadow:0 6px 15px rgba(36,93,143,.08);min-height:0}
+    #reset .latest-reset-card.complete{background:#e5f4eb;border-color:#a9d2b9}#reset .latest-reset-card.complete:before{background:#2a8a59}
+    #reset .latest-reset-card.preview{background:#dcebfA;border-color:#8dbbe2}#reset .latest-reset-card.preview:before{background:#1e74c5}
+    .signal-name{color:#183c61}.signal-icon{color:#1e74c5}.signal-count{border-color:#e1b55b;background:#fff1cf;color:#775522}.previous-reset{border-color:#bcc9d5;background:#fff}.previous-reset span,.previous-reset small{color:#637689}.previous-reset strong{color:#17344c}
+    .latest-reset-card h3{color:#16324e}.latest-copy{color:#365770}.latest-meta{color:#607588}
+    #reset .latest-reset-card h3{color:#16324e}
+    .pill{border-color:#c2d2de;color:#426279;background:#f6fafc}.pill.green{color:#247a54;border-color:#9bcfaf;background:#e6f6ee}.pill.orange{color:#8b641f;border-color:#e1b55b;background:#fff1cf}.pill.red{color:#aa4040;border-color:#e6a8a8;background:#fdebec}
+    #reset .reset-stats-head h3{color:#2b526f}#reset .tibo-feed{border-left:2px solid #9ebbd3;padding-left:8px}.tibo-feed{gap:6px}
+    #reset .tibo-item{background:#fff8ec;border-color:#e5d5bb;box-shadow:0 3px 8px rgba(71,57,33,.04)}#reset .tibo-item:nth-child(2){background:#f7fafc;border-color:#ccd9e2}#reset .tibo-item:nth-child(3){background:#f3f8f8;border-color:#c8dddd}
+    .tibo-item{grid-template-columns:34px 1fr;padding:8px 10px}.tibo-item:before{left:25px;top:37px;background:#b6cad9}.tibo-avatar{width:28px;height:28px;border-color:#d4b48c}.tibo-text{color:#1a3044}.tibo-footer{color:#637689}.tibo-footer a{color:#1e74c5}
+    .calendar-card{background:#eaf0f4;border-color:#b9c8d4;box-shadow:0 5px 13px rgba(28,57,82,.05)}.calendar-head h3{color:#17344c}.calendar-cell{background:#d7e0e8;border-color:rgba(77,104,126,.06)}.calendar-cell.reset{background:#f58a45}.calendar-cell.credit{background:#4a86d8}.calendar-cell.preview{background:#a8b6c4}.calendar-legend{color:#607588}.calendar-legend i{background:#d7e0e8}.calendar-legend .reset{background:#f58a45}.calendar-legend .credit{background:#4a86d8}.calendar-legend .preview{background:#a8b6c4}
+    #reset .calendar-head h3{color:#17344c}
+    #reset .calendar-card{background:#eaf0f4;border-color:#b9c8d4;box-shadow:0 5px 13px rgba(28,57,82,.05)}#reset .calendar-cell{background:#d7e0e8;border-color:rgba(77,104,126,.06)}#reset .calendar-cell.reset{background:#f58a45}#reset .calendar-cell.credit{background:#4a86d8}#reset .calendar-cell.preview{background:#a8b6c4}
+    table{background:#fff;border:1px solid #d2dee6}th{background:#eef4f7;color:#315873;border-bottom-color:#d2dee6}td{color:#345166;border-bottom-color:#e4ebf0}td strong{color:#1e74c5}tbody tr:hover{background:#f3f8fb}
+    .chart-grid{stroke:#d5e0e7}.chart-line{stroke:#1e74c5}.chart-area{opacity:.35}.chart-dot{fill:#1e74c5;stroke:#f2f5f8}.chart-label{fill:#607588}
+    .health-grid .metric,.metric{background:#fff;border-color:#cedbe3}.metric .value{color:#1e74c5}.metric .hint{color:#6a7d8d}.mini-chart .chart-line{stroke:#7563c2}
+    .alert-box{border-color:#e6a8a8;background:#fdebec;color:#9e3f3f}.ok-box{border-color:#9bcfaf;background:#e6f6ee;color:#247a54}.source-warning{border-color:#e1b55b;background:#fff1cf;color:#805b21}
+    footer{color:#728698}
+    @media(max-width:600px){header{padding:12px 14px}.quick{margin-bottom:8px}.panel{padding:12px}.tibo-item{grid-template-columns:32px 1fr}.tibo-item:before{left:24px}}
+
+    /* readability pass: slightly deeper canvas, stronger text contrast, larger operational labels. */
+    body{background:#e8edf2;color:#1e3042;font-size:15px}
+    header{min-height:62px;padding:11px 18px;background:#102a43;border-color:#1d4766}
+    h1{font-size:27px}.sub{font-size:14px;color:#c3d4e3}.live{font-size:13px;padding:6px 12px}
+    .quick a{font-size:14px;padding:7px 11px;color:#264d6b}
+    .panel{padding:18px;background:#fbfcfd;border-color:#c2d0da}.panel-head{margin-bottom:13px}.panel h2{font-size:22px}.stamp{font-size:13px;color:#4c6275}
+    .overview-card{padding:9px 11px;min-height:88px}.eyebrow{font-size:13px;color:#4c6478}.overview-title{font-size:20px}.overview-card .value{font-size:32px}.overview-card:nth-child(4) .value,#reset .overview-card:nth-child(4) .value{font-size:25px}.overview-copy{font-size:11px;line-height:1.4;color:#496174}
+    #reset .overview-current{background:#fff0c9}#reset .overview-card:nth-child(2){background:#d9efeb}#reset .overview-card:nth-child(3){background:#e7e0fa}#reset .overview-card:nth-child(4){background:#eaf3ee}
+    .reset-source-copy{font-size:14px;color:#47647c}.reset-source-avatar{width:40px;height:40px}
+    .signal-name{font-size:18px}.signal-icon{font-size:20px}.signal-count{font-size:12px}.previous-reset span,.previous-reset small{font-size:10px}.previous-reset strong{font-size:15px}
+    #reset .latest-reset-card{background:#cfe3f6}.latest-reset-card h3,#reset .latest-reset-card h3{font-size:21px;line-height:1.35}.latest-copy{font-size:14px;line-height:1.45;max-height:42px}.latest-meta{font-size:12px}.latest-link{font-size:13px}
+    .reset-stats-head h3{font-size:17px}.reset-stat{padding:8px 11px}.reset-stat .label{font-size:11px}.reset-stat .value{font-size:24px}.reset-stat .hint{font-size:10px}
+    .tibo-item{padding:9px 11px}.tibo-text{font-size:13px;line-height:1.42}.tibo-footer{font-size:11px}.tibo-top .stamp{font-size:12px}
+    .calendar-card,#reset .calendar-card{background:#dde6ed}.calendar-head h3,#reset .calendar-head h3{font-size:18px}.calendar-months{font-size:11px}.calendar-weekday{font-size:10px}.calendar-legend{font-size:11px}
+    .hero-title{font-size:25px}.hero-copy{font-size:14px}.prob{font-size:36px}
+    table{font-size:14px}th{font-size:13px}td,th{padding:11px 12px}.metric .value{font-size:26px}.metric .hint{font-size:13px}
+    /* body copy must remain readable at a normal desktop viewing distance. */
+    body{font-size:16px}
+    .sub{font-size:15px}.quick a{font-size:15px}.stamp{font-size:14px}.eyebrow{font-size:14px}
+    .overview-copy{font-size:12.5px;line-height:1.45}.reset-source-copy{font-size:15px}
+    .previous-reset span,.previous-reset small{font-size:11px}.previous-reset strong{font-size:16px}
+    .latest-copy{font-size:15px;line-height:1.5;max-height:48px}.latest-meta{font-size:13px}.latest-link{font-size:14px}
+    .reset-stat .label{font-size:12px}.reset-stat .hint{font-size:11px}
+    .tibo-item{padding:10px 12px}.tibo-text{font-size:14px;line-height:1.5;-webkit-line-clamp:3}.tibo-footer{font-size:12px}.tibo-top .stamp{font-size:13px}.pill{font-size:12px}
+    .calendar-months{font-size:12px}.calendar-weekday{font-size:11px}.calendar-legend{font-size:12px}
+    footer{font-size:13px}
+
+    /* final polish: recognizable source mark, tighter header, quieter reference metrics. */
+    header{min-height:0;padding:9px 18px}
+    h1{line-height:1.15}
+    .sub{line-height:1.3}
+    .logo{padding:0;overflow:hidden;display:grid;place-items:center;background:#dcebf8}
+    .logo img{width:100%;height:100%;display:block;object-fit:cover;border-radius:inherit}
+    .overview-copy{color:#405a70}
+    .stamp,.latest-meta{color:#4d6476}
+    .tibo-footer{color:#4f6475}
+    .calendar-legend{color:#526a7d}
+    #reset .overview-card:nth-child(4){background:#edf1f4;border-color:#c8d2dc}
+    #reset .overview-card:nth-child(4) .value{color:#536a7d;font-size:22px}
+    #reset .reset-stat{box-shadow:none;border-color:#d4dee5}
+    #reset .reset-stat:nth-child(1){background:#f7f4eb;border-color:#e0d7c1}
+    #reset .reset-stat:nth-child(2){background:#f6f4f9;border-color:#ddd7e7}
+    #reset .reset-stat:nth-child(3){background:#f2f6f8;border-color:#d3e0e6}
+    #reset .reset-stat .value{font-size:22px;color:#30485d}
+    #reset .reset-stat .hint{color:#637787}
+
+    /* focal hierarchy: make the actionable announcement and reset signal
+       readable at a glance without turning either card into a saturated block. */
+    #reset .overview-card.overview-current{
+      background:#fff0c7;
+      border-color:#d9a33a;
+      border-left:5px solid #d18918;
+      box-shadow:0 6px 16px rgba(176,124,17,.18)
+    }
+    #reset .overview-card.overview-current .eyebrow{
+      color:#694a16;
+      font-size:13px;
+      font-weight:800;
+      letter-spacing:.02em
+    }
+    #reset .overview-card.overview-current .overview-title{
+      color:#a23a2d;
+      font-size:23px;
+      font-weight:900;
+      letter-spacing:.01em;
+      margin:4px 0 3px;
+      text-decoration:underline;
+      text-decoration-color:rgba(162,58,45,.28);
+      text-decoration-thickness:3px;
+      text-underline-offset:4px
+    }
+    #reset .overview-card.overview-current .overview-copy{
+      color:#284965;
+      font-size:13.5px;
+      line-height:1.42;
+      font-weight:500
+    }
+    #reset .latest-reset-card{
+      background:linear-gradient(135deg,#cbe1f5 0%,#d9ecfa 100%);
+      border-color:#78a8d2;
+      border-left:5px solid #1472c5;
+      box-shadow:0 8px 18px rgba(33,94,145,.14)
+    }
+    #reset .latest-reset-card.preview{
+      background:linear-gradient(135deg,#cbe1f5 0%,#d9ecfa 100%);
+      border-color:#78a8d2;
+      border-left-color:#c2553a
+    }
+    #reset .latest-reset-card.complete{
+      background:linear-gradient(135deg,#dcefe4 0%,#e9f6ee 100%);
+      border-color:#9bcdb0;
+      border-left-color:#2a8a59
+    }
+    #reset .latest-reset-card .signal-name{
+      color:#123b62;
+      font-size:19px;
+      font-weight:850
+    }
+    #reset .latest-reset-card .signal-icon{
+      color:#0b6fc4;
+      font-weight:900
+    }
+    #reset .latest-reset-card .signal-count{
+      color:#6c4b10;
+      background:#fff4d6;
+      border-color:#d59f37;
+      font-size:12px;
+      font-weight:800
+    }
+    #reset .latest-reset-card .signal-status{margin-top:10px}
+    #reset .latest-reset-card .signal-status .eyebrow{
+      color:#2b577a;
+      font-size:14px;
+      font-weight:800
+    }
+    #reset .latest-reset-card .stamp{
+      color:#315c80;
+      font-weight:600
+    }
+    #reset .latest-reset-card h3{
+      color:#a23a2d;
+      font-size:24px;
+      font-weight:900;
+      letter-spacing:.01em;
+      line-height:1.25;
+      margin:8px 0 6px;
+      text-wrap:balance;
+      text-decoration:underline;
+      text-decoration-color:rgba(162,58,45,.28);
+      text-decoration-thickness:3px;
+      text-underline-offset:4px
+    }
+    #reset .latest-reset-card .latest-copy{
+      color:#204867;
+      font-size:15.5px;
+      line-height:1.5;
+      max-height:none;
+      font-weight:500
+    }
+    #reset .latest-reset-card .latest-meta{
+      color:#315b7d;
+      font-size:13px;
+      font-weight:600
+    }
+    #reset .latest-reset-card .latest-link{
+      color:#0f67b8;
+      font-size:14px;
+      font-weight:700
+    }
+    #reset .latest-reset-card.complete h3{color:#114a36}
+    #reset .latest-reset-card.complete .latest-copy{color:#295941}
+    #reset .latest-reset-card.complete .signal-icon{color:#23784e}
+    #reset .latest-reset-card.model h3{color:#0b4f82}
+    #reset .latest-reset-card.model h3,
+    #reset .latest-reset-card.complete h3{ text-decoration:none }
+    #reset .overview-current.announce .overview-title{color:#a23a2d}
+    #reset .overview-current.complete .overview-title{color:#23784e}
+    #reset .overview-current.waiting .overview-title{color:#955e18}
+
+    /* C palette: indigo recommendation, vermilion reset signal, neutral history. */
+    :root{
+      color-scheme:light;
+      --bg:#f3f5f8;--panel:#ffffff;--panel2:#f8fafc;
+      --line:#cbd5e1;--line2:#e2e8f0;--text:#18233b;--muted:#53627a;
+      --blue:#4f46e5;--cyan:#0f766e;--green:#18864b;--orange:#c2410c;
+      --red:#b42318;--yellow:#b7791f
+    }
+    body{background:#f3f5f8;color:#18233b}
+    #reset.panel{background:#f8fafc;border-color:#cbd5e1;border-top-color:#4f46e5}
+    #reset .overview-card{background:#fff;border-color:#cbd5e1;color:#18233b;box-shadow:0 4px 12px rgba(24,35,59,.06)}
+    #reset .overview-card.overview-current{background:#f5f2ff;border-color:#c7c0f5;border-left:5px solid #4f46e5;box-shadow:0 6px 16px rgba(79,70,229,.12)}
+    #reset .overview-card.overview-current .eyebrow{color:#4338ca;font-size:13px;font-weight:800}
+    #reset .overview-card.overview-current .overview-title{color:#3730a3;font-size:23px;font-weight:900;text-decoration:none}
+    #reset .overview-card.overview-current .overview-copy{color:#334155;font-size:13.5px;line-height:1.42;font-weight:500}
+    #reset .overview-current.announce .overview-title,#reset .overview-current.waiting .overview-title{color:#3730a3}
+    #reset .overview-current.complete .overview-title{color:#18794e}
+    /* A direction: calm, light surfaces with a clear official-signal anchor. */
+    #reset .overview-card:nth-child(2){background:#edf6f5;border-color:#b7d9d4}
+    #reset .overview-card:nth-child(2) .overview-value,
+    #reset .overview-card:nth-child(2) .value{color:#087767}
+    #reset .overview-card:nth-child(3){background:#f0effc;border-color:#c9c4ed}
+    #reset .overview-card:nth-child(3) .overview-value,
+    #reset .overview-card:nth-child(3) .value{color:#5d4aa5}
+    #reset .overview-card:nth-child(4){background:#e8f7f0;border-color:#198574}
+    #reset .overview-card:nth-child(4) .overview-value,
+    #reset .overview-card:nth-child(4) .value{color:#087767}
+    #reset .overview-card.overview-confidence{background:#e8f7f0;border:2px solid #198574;border-left:2px solid #198574;box-shadow:0 8px 18px rgba(25,133,116,.15)}
+    #reset .overview-card.overview-confidence .eyebrow{color:#155f58;font-weight:850}
+    #reset .reset-overview > .overview-card:nth-child(2) .overview-value,
+    #reset .reset-overview > .overview-card:nth-child(2) .value,
+    #reset .reset-overview > .overview-card:nth-child(3) .overview-value,
+    #reset .reset-overview > .overview-card:nth-child(3) .value{font-size:20px !important;font-weight:800;line-height:1.15}
+    #reset .overview-card.overview-confidence .overview-value,
+    #reset .overview-card.overview-confidence .value{color:#087767 !important;font-size:40px !important;font-weight:950;line-height:1;letter-spacing:-.02em}
+    #reset .overview-card.overview-confidence .overview-copy{color:#245e57;font-size:11px;font-weight:700}
+    #reset .reset-stats-head h3{color:#18233b}
+    #reset .reset-stat{background:#fff;border-color:#d7dee7;box-shadow:0 3px 9px rgba(24,35,59,.04)}
+    #reset .reset-stat:nth-child(1){background:#f8fafc;border-color:#d7dee7}
+    #reset .reset-stat:nth-child(1):before{background:#6366f1}
+    #reset .reset-stat:nth-child(2){background:#f7f5fc;border-color:#ddd7ed}
+    #reset .reset-stat:nth-child(2):before{background:#8b5cf6}
+    #reset .reset-stat:nth-child(3){background:#f4f7f9;border-color:#d3dee7}
+    #reset .reset-stat:nth-child(3):before{background:#64748b}
+    #reset .reset-stat .label{color:#475569}
+    #reset .reset-stat .value{color:#18233b}
+    #reset .reset-stat .hint{color:#64748b}
+    #reset .latest-reset-card{background:#fff1e8;border-color:#f0b69d;border-left:5px solid #c2410c;box-shadow:0 8px 18px rgba(194,65,12,.10)}
+    #reset .latest-reset-card.preview{background:#fff1e8;border-color:#f0b69d;border-left-color:#c2410c}
+    #reset .latest-reset-card.complete{background:#e8f6ee;border-color:#afd8bf;border-left-color:#18864b}
+    #reset .latest-reset-card .signal-name{color:#18233b}
+    #reset .latest-reset-card .signal-icon{color:#c2410c}
+    #reset .latest-reset-card.complete .signal-icon{color:#18864b}
+    #reset .latest-reset-card .signal-count{color:#9a3412;background:#fff7ed;border-color:#fdba74}
+    #reset .latest-reset-card .previous-reset{border-color:#d5dbe4;background:#fff}
+    #reset .latest-reset-card .previous-reset span,#reset .latest-reset-card .previous-reset small{color:#64748b}
+    #reset .latest-reset-card .previous-reset strong{color:#18233b}
+    #reset .latest-reset-card .signal-status .eyebrow{color:#9a3412}
+    #reset .latest-reset-card .stamp{color:#64748b}
+    #reset .latest-reset-card h3{color:#9a3412;text-decoration:none}
+    #reset .latest-reset-card .latest-copy{color:#553c34}
+    #reset .latest-reset-card .latest-meta{color:#64748b}
+    #reset .latest-reset-card .latest-link{color:#9a3412}
+    #reset .latest-reset-card.complete h3{color:#17643e}
+    #reset .latest-reset-card.complete .latest-copy{color:#28563d}
+    #reset .pill.orange{color:#9a3412;border-color:#fdba74;background:#fff7ed}
+    #reset .pill.red{color:#b42318;border-color:#f1a6a0;background:#fff0ef}
+    #reset .tibo-feed{border-left-color:#c7cfe0}
+    #reset .tibo-item{background:#fffaf5;border-color:#f0d5bd;box-shadow:0 3px 8px rgba(24,35,59,.04)}
+    #reset .tibo-item:nth-child(2){background:#f7f8fb;border-color:#d6dee8}
+    #reset .tibo-item:nth-child(3){background:#f2faf8;border-color:#c6e0d9}
+    #reset .tibo-text{color:#1f2937}
+    #reset .tibo-footer{color:#64748b}
+    #reset .tibo-footer a{color:#4338ca}
+    #reset .calendar-card{background:#eef2f7;border-color:#cbd5e1;box-shadow:0 5px 13px rgba(24,35,59,.05)}
+    #reset .calendar-head h3{color:#18233b}
+    #reset .calendar-cell{background:#d8e0ea}
+    #reset .calendar-cell.reset,#reset .calendar-legend .reset{background:#f97316}
+    #reset .calendar-cell.credit,#reset .calendar-legend .credit{background:#6366f1}
+    #reset .calendar-cell.preview,#reset .calendar-legend .preview{background:#94a3b8}
+    #reset .calendar-legend{color:#64748b}
+  </style>
+</head>
+<body>
+<div class="shell">
+  <header>
+    <div class="brand"><div class="logo"><img src="https://betteropc.com/images/product-tracking/codex-source-avatar.jpg" alt="Tibo 头像"></div><div><h1>Codex 雷达</h1><div class="sub">大春飞牛局域网版 · 中文优先 · 零模型轮询</div></div></div>
+    <div id="live" class="live">正在读取雷达……</div>
+  </header>
+  <nav class="quick">
+    <a href="#reset">重置监控</a><a href="#fast">Fast 雷达</a><a href="#model">模型效率</a><a href="#quota">额度雷达</a>
+  </nav>
+
+  <section id="reset" class="panel">
+    <div class="panel-head"><h2>Codex 重置监控</h2><span id="updated" class="stamp">—</span></div>
+    <div class="reset-source"><img class="reset-source-avatar" src="https://betteropc.com/images/product-tracking/codex-source-avatar.jpg" alt="Tibo 头像"><div class="reset-source-copy">我们帮你追踪 <b>@thsottiaux</b> 正在发布的 Codex 重置消息，节省你宝贵的时间</div></div>
+    <div class="reset-overview">
+      <article class="overview-card overview-current"><div class="eyebrow">当前建议</div><div id="action" class="overview-title">等待</div><div id="predictionSummary" class="overview-copy">正在读取预测模型</div></article>
+      <article class="overview-card"><div class="eyebrow">未来 24 小时</div><div id="p24" class="overview-value">—</div><div id="p24Meta" class="overview-copy">历史模型</div></article>
+      <article class="overview-card"><div class="eyebrow">未来 48 小时基础概率</div><div id="p48" class="overview-value yellow">—</div><div id="p48Meta" class="overview-copy">历史模型</div></article>
+      <article class="overview-card overview-confidence"><div class="eyebrow">官方信号置信度</div><div id="signalScore" class="overview-value">—</div><div id="signalMeta" class="overview-copy">等待裁决</div></article>
+    </div>
+    <div class="reset-stats-head"><div><div class="eyebrow">公开信号节奏</div><h3>历史参考指标</h3></div><span class="stamp">仅作趋势参考 · 不等同官方确认次数</span></div>
+    <div class="reset-stats">
+      <article class="reset-stat"><div class="label">公开信号数</div><div id="resetCount" class="value">—</div><div class="hint">当前样本中的去重日期</div></article>
+      <article class="reset-stat"><div class="label">平均信号间隔</div><div id="avgGap" class="value">—</div><div class="hint">按公开事件日期估算</div></article>
+      <article class="reset-stat"><div class="label">最长公开空窗</div><div id="maxWait" class="value">—</div><div class="hint">仅反映历史样本，不是官方预告</div></article>
+    </div>
+    <div class="reset-dashboard-grid">
+      <article id="latestResetCard" class="latest-reset-card">
+        <div class="signal-card-head"><div class="signal-name"><span class="signal-icon">↻</span><b>重置信号</b><span id="signalCount" class="signal-count">Tibo 官方动态</span></div><div class="previous-reset"><span>上次确认重置</span><strong id="previousResetAge">—</strong><small id="previousResetDate">—</small></div></div>
+        <div class="signal-status"><span id="latestPill" class="pill orange">待判断</span><span id="latestEyebrow" class="eyebrow">最新公开信号</span><span id="resetStamp" class="stamp">—</span></div>
+        <h3 id="latestTitle">正在读取最新重置动态</h3>
+        <div id="latestCopy" class="latest-copy">等待公开信号。</div>
+        <div id="latestTime" class="latest-meta">—</div><a id="latestLink" class="latest-link" href="#" target="_blank" rel="noreferrer" hidden>查看原帖 ↗</a>
+      </article>
+    </div>
+    <div class="panel-head" style="margin-top:18px"><div><div class="eyebrow">TIBO 官方动态</div><h2 style="font-size:17px">最新 3 条中文内容</h2></div><span class="stamp">直接展示摘要，原帖可核验</span></div>
+    <div id="tweets" class="tibo-feed"></div>
+    <article class="calendar-card">
+      <div class="calendar-head"><div><h3>Codex 重置历史</h3><div class="stamp">最近一年 · 桌面端完整展示</div></div><div class="calendar-head-meta"><span class="stamp">按日期聚合</span><span class="pill">悬停查看详情</span></div></div>
+      <div class="calendar-scroll"><div id="calendarMonths" class="calendar-months"></div><div style="display:flex;margin-top:3px"><div class="calendar-weekday"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div><div id="resetCalendar" class="calendar-grid" aria-label="Codex 重置历史日历"></div></div></div>
+      <div class="calendar-legend"><span><i class="reset"></i>全员重置</span><span><i class="credit"></i>重置卡</span><span><i class="preview"></i>预告</span><span><i></i>未重置</span></div>
+    </article>
+    <div id="warnings" class="reset-warning"></div>
+  </section>
+
+  <section id="fast" class="panel">
+    <div class="panel-head"><div><h2>Fast 雷达</h2><div class="fast-note">最新一轮公开配对测试</div></div><span id="fastStamp" class="stamp">读取实时公开数据…</span></div>
+    <table><thead><tr><th>模型</th><th>完整任务 Standard → Fast</th><th>体感加速</th><th>首字变化</th><th>生成速度加速</th></tr></thead><tbody id="fastRows"><tr><td colspan="5">正在读取…</td></tr></tbody></table>
+    <div id="fastLatestNote" class="fast-note" style="margin-top:8px"></div>
+    <div class="panel-head" style="margin-top:16px"><div><h2 style="font-size:17px">Fast 加速历史曲线</h2><div class="fast-note">过去公开配对测试的 E2E 加速倍数</div></div><span id="fastCount" class="stamp">—</span></div>
+    <div id="fastHistory" class="grid3"></div>
+    <div class="fast-note">原站固定测试：同一模型与强度下 Standard/Fast 配对运行；最新测试只展示上游本轮返回的模型，其他模型保留在历史曲线中。Fast 成本以当前账号实际显示为准。</div>
+  </section>
+
+  <section id="model" class="panel">
+    <div class="panel-head"><h2>模型完整矩阵</h2><span id="modelStamp" class="stamp">—</span></div>
+    <table><thead><tr><th>模型</th><th>强度</th><th>综合分</th><th>软件 / 视觉</th><th>平均费用</th><th>平均耗时</th><th>24h / 48h 轮次</th></tr></thead><tbody id="modelRows"><tr><td colspan="7">正在读取…</td></tr></tbody></table>
+    <div id="modelNotice" class="notice"></div>
+    <div class="panel-head" style="margin-top:16px"><h2 style="font-size:17px">降智预警</h2><span class="stamp">与自身 24/48 小时均值比较</span></div><div id="degradation"></div>
+  </section>
+
+  <section id="health" class="panel">
+    <div class="panel-head"><h2>数据源健康与模型建议</h2><span class="stamp">只读公开众测</span></div>
+    <div id="sourceHealth" class="health-grid"></div>
+    <div id="modelAdvice" class="grid4" style="margin-top:12px"></div>
+  </section>
+
+  <section id="quota" class="panel">
+    <div class="panel-head"><h2>额度雷达</h2><span id="quotaStamp" class="stamp">—</span></div>
+    <table><thead><tr><th>档位</th><th>7 天额度</th><th>来源</th></tr></thead><tbody id="quotaRows"><tr><td colspan="3">正在读取公开额度摘要……</td></tr></tbody></table>
+    <div class="trend-summary"><b>额度变化趋势</b><strong id="quotaDelta" class="delta">—</strong></div>
+    <div id="quotaChart"></div>
+    <div class="notice">额度来自原站公开摘要；完整接口未接入。数值是社区测量或推算，不是 OpenAI 官方套餐承诺。</div>
+  </section>
+  <footer>数据来源：codexradar.com 公开摘要、codex-reset.com 公开 API。与 OpenAI 无关；是否到账以你自己的 Codex 账户为准。</footer>
+</div>
+<script>
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
+const safeUrl=u=>/^https:\/\/x\.com\//.test(String(u||""))?u:"#";
+const time=s=>s?new Date(s).toLocaleString("zh-CN",{hour12:false}):"—";
+const money=n=>{const v=Number(n);return Number.isFinite(v)?`${v<0?"-":""}$${Math.abs(v).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2})}`:"—"};
+const finite=n=>n!==null&&n!==undefined&&n!==""&&Number.isFinite(Number(n));
+const decimal=(n,d=1)=>finite(n)?Number(n).toFixed(d):"—";
+const ratio=n=>finite(n)?Number(n).toFixed(3)+"×":"不可测";
+const seconds=n=>finite(n)?Number(n).toFixed(2)+"s":"—";
+const modelName=m=>String(m??"").replace(/^gpt-/,"").split("-").map(s=>s?s[0].toUpperCase()+s.slice(1):s).join(" ");
+const probClass=n=>n>=60?"high":n>=35?"mid":"low";
+const ageMinutes=ts=>{const n=Date.parse(ts||"");return Number.isFinite(n)?Math.max(0,(Date.now()-n)/60000):Infinity};
+function miniLine(points){if(!points.length)return '<div class="notice">暂无历史</div>';const v=points.map(x=>Number(x.e2e_speedup)),w=300,h=80,p=8,min=Math.min(...v),max=Math.max(...v),r=max-min||1,xy=v.map((n,i)=>`${p+i*(w-p*2)/Math.max(1,v.length-1)},${h-p-(n-min)*(h-p*2)/r}`).join(' ');return `<svg class="mini-chart" viewBox="0 0 ${w} ${h}"><polyline class="chart-line" points="${xy}"/></svg>`}
+function sparkline(points){
+  if(!points.length)return '<div class="notice">暂无趋势数据</div>';
+  const vals=points.map(p=>Number(p.seven_d_20x)).filter(Number.isFinite),w=900,h=185,pad=34;
+  const min=Math.min(...vals),max=Math.max(...vals),range=max-min||1;
+  const xy=points.map((p,i)=>({x:pad+i*(w-pad*2)/Math.max(1,points.length-1),y:h-pad-(Number(p.seven_d_20x)-min)*(h-pad*2)/range,v:Number(p.seven_d_20x),d:p.date}));
+  const line=xy.map(p=>`${p.x},${p.y}`).join(" "),area=`${pad},${h-pad} ${line} ${w-pad},${h-pad}`;
+  const dots=xy.map((p,i)=>`<circle class="chart-dot" cx="${p.x}" cy="${p.y}" r="${i===xy.length-1?5:3}"><title>${esc(p.d)}：${money(p.v)}</title></circle>`).join("");
+  return `<svg class="chart" viewBox="0 0 ${w} ${h}" role="img" aria-label="七天额度趋势"><defs><linearGradient id="area" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4fa9ff" stop-opacity=".28"/><stop offset="1" stop-color="#4fa9ff" stop-opacity="0"/></linearGradient></defs><line class="chart-grid" x1="${pad}" x2="${w-pad}" y1="${pad}" y2="${pad}"/><line class="chart-grid" x1="${pad}" x2="${w-pad}" y1="${h-pad}" y2="${h-pad}"/><polygon class="chart-area" points="${area}"/><polyline class="chart-line" points="${line}"/>${dots}<text class="chart-label" x="${pad}" y="${h-8}">${esc(points[0].date)}</text><text class="chart-label" text-anchor="end" x="${w-pad}" y="${h-8}">${esc(points.at(-1).date)}</text><text class="chart-label" x="${pad}" y="${pad-8}">${money(max)}</text></svg>`;
+}
+const dateKey=d=>{const x=new Date(d);return Number.isFinite(x.getTime())?x.toISOString().slice(0,10):String(d||"").slice(0,10)};
+const daysBetween=(a,b)=>Math.round((new Date(b)-new Date(a))/86400000);
+const daysLabel=n=>Number.isFinite(Number(n))?`${Number(n).toFixed(1)}天`:"—";
+function renderResetStats(events,forecast){
+  const dates=[...new Set((events||[]).filter(e=>["reset","credits"].includes(e.type)&&e.date).map(e=>dateKey(e.date)))].sort();
+  const gaps=dates.slice(1).map((d,i)=>daysBetween(d,dates[i])).filter(n=>n>0);
+  const cadence=Number(forecast?.cadence?.recent_median_days);
+  const average=gaps.length?gaps.reduce((a,b)=>a+b,0)/gaps.length:(Number.isFinite(cadence)?cadence:NaN);
+  const max=gaps.length?Math.max(...gaps):(Number.isFinite(Number(forecast?.age_days))?Number(forecast.age_days):NaN);
+  document.getElementById("resetCount").textContent=dates.length||"—";
+  document.getElementById("avgGap").textContent=daysLabel(average);
+  document.getElementById("maxWait").textContent=daysLabel(max);
+}
+function renderCalendar(events){
+  const end=new Date();end.setHours(0,0,0,0);end.setDate(end.getDate()+(7-end.getDay())%7);
+  const weeks=53,start=new Date(end);start.setDate(start.getDate()-((weeks-1)*7+6));
+  const eventMap=new Map(),priority={preview:1,credits:2,reset:3};
+  for(const e of events||[]){if(!e.date)continue;const key=dateKey(e.date),type=e.preview?"preview":e.type||"signal";if(!eventMap.has(key)||priority[type]>(priority[eventMap.get(key).type]||0))eventMap.set(key,{...e,type})}
+  const months=[];let lastMonth="";
+  for(let w=0;w<weeks;w++){const d=new Date(start);d.setDate(start.getDate()+w*7);const label=d.toLocaleDateString("zh-CN",{month:"numeric"});if(label!==lastMonth){months.push(`<span class="calendar-month" style="grid-column:${w+1}">${esc(label)}</span>`);lastMonth=label}}
+  const cells=[];
+  for(let w=0;w<weeks;w++)for(let row=0;row<7;row++){const d=new Date(start);d.setDate(start.getDate()+w*7+row);const key=dateKey(d),event=eventMap.get(key),title=event?`${key}：${event.type==="reset"?"全员重置":event.type==="credits"?"重置卡":"预告"} · ${event.summary_zh||"公开事件"}`:`${key}：未发现公开重置事件`;cells.push(`<span class="calendar-cell ${event?.type||"empty"}" title="${esc(title)}" aria-label="${esc(title)}"></span>`)}
+  document.getElementById("calendarMonths").style.gridTemplateColumns=`repeat(${weeks},var(--calendar-cell))`;
+  document.getElementById("calendarMonths").style.columnGap="var(--calendar-gap)";
+  document.getElementById("resetCalendar").style.gap="var(--calendar-gap)";
+  document.getElementById("calendarMonths").innerHTML=months.join("");
+  document.getElementById("resetCalendar").innerHTML=cells.join("");
+}
+function renderLatestReset(events,forecast,radarSummary){
+  const f=forecast||{},official=f.official_signal||{},adjudication=f.adjudication||{},latest=(events||[]).find(e=>["reset","credits"].includes(e.type))||(events||[])[0]||{};
+  const completed=f.mode==="completed"||adjudication.status==="completed",announced=f.mode==="announced"&&adjudication.trusted_announcement!==false&&Boolean(official.tweet_id),window=f.window||{},officialWindow=official.window||{};
+  const officialTime=officialWindow.start_at&&officialWindow.end_at?`${time(officialWindow.start_at)} 至 ${time(officialWindow.end_at)}`:officialWindow.label||"具体时间请查看原帖";
+  let state="model",pill="待判断",eyebrow="最新公开信号",title="当前没有新的重置预告",copy="公开来源暂未给出新的明确重置承诺。",at=f.updated_at||"",url="";
+  if(announced){state="preview";pill="官方预告";eyebrow="发重置卡 / 未来窗口";title=official.summary_zh||"官方已宣布即将重置";copy=`Tibo 已明确预告即将重置，预计窗口：${officialTime}。具体到账以个人账户为准。`;at=official.at||f.updated_at;url=official.url||""}
+  else if(completed){state="complete";pill="已完成";eyebrow="直接重置";title="最近一次重置已经执行";copy=latest.summary_zh||adjudication.reason_zh||"重置已完成，后续动态不代表新的未来承诺。";at=latest.date||f.last_reset_at;url=latest.url||""}
+  else if(latest.date){state=latest.preview?"preview":latest.type==="credits"?"model":"complete";pill=latest.preview?"预告":latest.type==="credits"?"重置卡":"已重置";eyebrow=latest.type==="credits"?"可储备重置卡":"最近公开事件";title=latest.summary_zh||"发现新的公开重置信号";copy=latest.confidence?`来源置信度：${latest.confidence}。${latest.summary_zh||""}`:latest.summary_zh||copy;at=latest.date;url=latest.url||""}
+  const card=document.getElementById("latestResetCard");card.className=`latest-reset-card ${state}`;const latestPill=document.getElementById("latestPill");latestPill.textContent=pill;latestPill.className=`pill ${state==="complete"?"green":state==="preview"?"orange":"orange"}`;document.getElementById("latestEyebrow").textContent=eyebrow;document.getElementById("latestTitle").textContent=title;document.getElementById("latestCopy").textContent=copy;document.getElementById("latestTime").textContent=at?`更新时间：${time(at)}`:"暂无时间";document.getElementById("resetStamp").textContent=`事件更新 ${time(at||radarSummary?.updated_at)}`;
+  const link=document.getElementById("latestLink"),href=safeUrl(url);if(href!=="#"){link.href=href;link.hidden=false}else{link.hidden=true}
+}
+// The signal card follows the upstream BetterOPC layout while keeping the
+// forecast values in the compact overview row above it.
+function renderLatestReset(events,forecast,radarSummary,tweets){
+  const f=forecast||{},official=f.official_signal||{},adjudication=f.adjudication||{},latest=(events||[]).find(e=>["reset","credits"].includes(e.type))||(events||[])[0]||{},tweet=(tweets||[])[0]||{};
+  const completed=f.mode==="completed"||adjudication.status==="completed",announced=f.mode==="announced"&&adjudication.trusted_announcement!==false&&Boolean(official.tweet_id),officialWindow=official.window||{};
+  const officialTime=officialWindow.start_at&&officialWindow.end_at?`${time(officialWindow.start_at)} 至 ${time(officialWindow.end_at)}`:officialWindow.label||"具体时间请查看原帖";
+  let state="model",pill="待判断",eyebrow="最新公开信号",title="当前没有新的重置预告",copy="公开来源暂未给出新的明确重置承诺。",at=f.updated_at||"",url="";
+  if(announced){state="preview";pill="进行中";eyebrow="发重置卡";title=official.summary_zh||"官方已宣布即将重置";copy=`Tibo 已明确预告即将重置，预计窗口：${officialTime}。具体到账以个人账户为准。`;at=official.at||f.updated_at;url=official.url||""}
+  else if(completed){state="complete";pill="已完成";eyebrow="直接重置";title="最近一次重置已经执行";copy=latest.summary_zh||adjudication.reason_zh||"重置已完成，后续动态不代表新的未来承诺。";at=latest.date||f.last_reset_at;url=latest.url||""}
+  else if(tweet.content_zh){
+    const card=/重置卡|储备重置/.test(String(tweet.content_zh)),compactTitle=/GPT-6 Sol 和 Luna/.test(String(tweet.content_zh))?"GPT-6 Sol 和 Luna 已发布，API 价格永久降低 50%；同时正在为所有 Plus、Pro 和 Business 用户账户加载一张可按需使用的重置卡。":tweet.content_zh;
+    state=tweet.signal==="已完成重置"?"complete":card?"preview":"model";pill=tweet.signal==="已完成重置"?"已完成":card?"进行中":"公开动态";eyebrow=card?"发重置卡":"Tibo 官方动态";title=compactTitle;copy=tweet.interpretation_zh||"公开动态";at=tweet.at||f.updated_at;url=tweet.url||"";
+  }
+  else if(latest.date){state=latest.preview?"preview":latest.type==="credits"?"model":"complete";pill=latest.preview?"预告":latest.type==="credits"?"重置卡":"已重置";eyebrow=latest.type==="credits"?"可储备重置卡":"最近公开事件";title=latest.summary_zh||"发现新的公开重置信号";copy=latest.confidence?`来源置信度：${latest.confidence}。${latest.summary_zh||""}`:latest.summary_zh||copy;at=latest.date;url=latest.url||""}
+  const card=document.getElementById("latestResetCard");card.className=`latest-reset-card ${state}`;const latestPill=document.getElementById("latestPill");latestPill.textContent=pill;latestPill.className=`pill ${state==="complete"?"green":state==="preview"?"orange":"orange"}`;document.getElementById("latestEyebrow").textContent=eyebrow;document.getElementById("latestTitle").textContent=title;document.getElementById("latestCopy").textContent=copy;document.getElementById("latestTime").textContent=at?`更新时间：${time(at)}`:"暂无时间";document.getElementById("resetStamp").textContent=`事件更新 ${time(at||radarSummary?.updated_at)}`;
+  const lastReset=f.last_reset_at||latest.date||"",age=Number(f.age_days),ageText=Number.isFinite(age)?`${age.toFixed(1)} 天前`:lastReset?"已确认":"—",dateText=lastReset?new Date(lastReset).toLocaleDateString("zh-CN",{month:"numeric",day:"numeric"}):"—";document.getElementById("previousResetAge").textContent=ageText;document.getElementById("previousResetDate").textContent=dateText;
+  const requested=radarSummary?.request_count||radarSummary?.reset_requests||radarSummary?.resets_requested;document.getElementById("signalCount").textContent=requested?`求重置 ${Number(requested).toLocaleString("en-US")}`:"Tibo 官方动态";
+  const link=document.getElementById("latestLink"),href=safeUrl(url);if(href!=="#"){link.href=href;link.hidden=false}else{link.hidden=true}
+}
+function renderTweets(tweets){
+  const list=(tweets||[]).slice(0,3),host=document.getElementById("tweets"),avatar="https://betteropc.com/images/product-tracking/codex-source-avatar.jpg";
+  host.innerHTML=list.length?list.map((t,i)=>`<article class="tibo-item"><img class="tibo-avatar" src="${avatar}" alt="Tibo 头像" loading="lazy"><div class="tibo-content"><div class="tibo-top"><span class="pill ${t.signal==='已完成重置'?'green':t.signal==='重置相关'?'red':'orange'}">${esc(t.signal||"公开动态")}</span><span class="stamp">${time(t.at)}</span></div><div class="tibo-text">${esc(t.content_zh||t.interpretation_zh||"中文摘要暂未提供")}</div><div class="tibo-footer"><span>${esc(t.interpretation_zh||"公开动态")}</span><a href="${safeUrl(t.url)}" target="_blank" rel="noreferrer">查看原帖 ↗</a></div></div></article>`).join(""):'<div class="notice">暂无最新动态</div>';
+}
+async function load(){
+  try{
+    const r=await fetch("/api/status",{cache:"no-store"}),d=await r.json(),f=d.forecast||{},rp=f.probabilities||{},rad=d.radar_summary||{},pred=rad.prediction||{},win=rad.window||{},iq=rad.model_iq||{},quota=iq.quota_radar||{},modelRadar=d.model_radar||{},fastRadar=d.fast_radar||{};
+    document.getElementById("live").textContent=d.service==="ok"?"● 雷达运行正常":"● 部分数据暂不可用";
+    document.getElementById("live").className="live"+(d.service==="ok"?"":" red");
+    document.getElementById("updated").textContent="最后成功 "+time(d.last_success_at)+" · 下次 "+time(d.next_check_at);
+    // Always prefer the continuously refreshed forecast API. The public radar
+    // summary may be an old editorial snapshot and must not override it.
+    const p24=Number.isFinite(Number(rp.rounded_24h))?Number(rp.rounded_24h):Number.isFinite(Number(rp.raw_24h))?Math.round(Number(rp.raw_24h)*100):NaN,p48=Number.isFinite(Number(rp.rounded_48h))?Number(rp.rounded_48h):Number.isFinite(Number(rp.raw_48h))?Math.round(Number(rp.raw_48h)*100):NaN;
+    for(const [id,n] of [["p24",p24],["p48",p48]]){const el=document.getElementById(id);el.textContent=Number.isFinite(n)?n+"%":"—";el.className="value "+probClass(n)}
+    const official=f.official_signal||{},adjudication=f.adjudication||{},completed=f.mode==="completed"||adjudication.status==="completed",announced=f.mode==="announced"&&adjudication.trusted_announcement!==false&&Boolean(official.tweet_id),officialWindow=official.window||{},officialTime=officialWindow.start_at&&officialWindow.end_at?`${time(officialWindow.start_at)} 至 ${time(officialWindow.end_at)}`:officialWindow.label||"具体时间请查看原帖",officialCopy=`Tibo 已明确预告即将重置，预计窗口：${officialTime}。具体到账以个人账户为准。`;
+    const currentCard=document.querySelector(".overview-current");
+    if(currentCard){currentCard.classList.toggle("announce",announced);currentCard.classList.toggle("complete",completed);currentCard.classList.toggle("waiting",!completed&&!announced)}
+    const signalScore=Number.isFinite(Number(rp.signal_percent))?Number(rp.signal_percent):Number.isFinite(Number(rp.commitment))?Math.round(Number(rp.commitment)*100):NaN,signalEl=document.getElementById("signalScore");signalEl.textContent=Number.isFinite(signalScore)?signalScore+"%":"—";signalEl.className="value "+(completed?"mid":probClass(signalScore));
+    const forecastAge=ageMinutes(f.updated_at),forecastFresh=forecastAge<=30,forecastMeta=(forecastFresh?"实时模型":"数据可能过期")+" · 更新 "+time(f.updated_at);
+    document.getElementById("p24Meta").textContent=forecastMeta+" · 历史节奏模型，不代表官方承诺";
+    document.getElementById("p48Meta").textContent=forecastMeta+" · 与官方信号分开计算";
+    document.getElementById("signalMeta").textContent=completed?"上游信号分 · 本地裁决不采信":announced?"本地裁决通过 · 官方信号优先":"当前没有可信的未来承诺";
+    for(const id of ["p24Meta","p48Meta"]){document.getElementById(id).style.color=forecastFresh?"":"#ff9f1c"}
+    document.getElementById("signalMeta").style.color=completed?"#ffca5c":"";
+    document.getElementById("action").textContent=completed?"已确认当天完成重置":announced?"官方已宣布即将重置":win.open?"速蹬窗口已开启":"当前建议：等待";
+    const cadence=f.cadence||{},confidence={high:"高",medium:"中等",low:"较低"}[f.confidence]||"未知",age=Number(f.age_days),cadenceText=Number.isFinite(Number(cadence.recent_median_days))?`最近 ${cadence.recent_sample||"—"} 次重置的中位间隔约 ${cadence.recent_median_days} 天。`:"";
+    document.getElementById("predictionSummary").textContent=completed?`${adjudication.reason_zh||"重置已经执行，后续动态不是新的未来承诺。"} 最近一次重置：${time(f.last_reset_at)}。`:announced?officialCopy:`实时概率模型（${confidence}置信度）：${Number.isFinite(age)?`距上次重置约 ${age.toFixed(1)} 天。`:""}${cadenceText}该数字是动态概率，不是官方预告。`;
+    const events=d.events||[],tweets=d.tibo_updates||[];renderLatestReset(events,f,rad,tweets);renderResetStats(events,f);renderCalendar(events);renderTweets(tweets);
+    const rows=quota.rows||[];document.getElementById("quotaRows").innerHTML=rows.length?rows.map(x=>`<tr><td>${esc(x.tier)}</td><td><strong>${money(x.seven_d)}</strong></td><td>${x.basis==='estimated'?'推算':'分布式雷达'}</td></tr>`).join(""):'<tr><td colspan="3">公开摘要暂未提供额度数据</td></tr>';
+    document.getElementById("quotaStamp").textContent="更新 "+time(quota.updated_at||iq.updated_at);
+    const trend=(quota.trend||[]).filter(x=>Number.isFinite(Number(x.seven_d_20x)));document.getElementById("quotaChart").innerHTML=sparkline(trend);
+    if(trend.length>1){const a=Number(trend.at(-2).seven_d_20x),b=Number(trend.at(-1).seven_d_20x),delta=b-a,pct=a?delta/a*100:0,el=document.getElementById("quotaDelta");el.textContent=`${money(a)} → ${money(b)}（${delta>=0?"+":""}${money(delta)}，${pct>=0?"+":""}${pct.toFixed(1)}%）`;el.className="delta "+(delta<=0?"down":"up")}
+    document.getElementById("modelStamp").textContent="更新 "+time(modelRadar.updated_at);const matrix=modelRadar.matrix||[];document.getElementById("modelRows").innerHTML=matrix.length?matrix.map(m=>`<tr><td><strong>${esc(m.model_label)}</strong></td><td>${esc(m.effort)}</td><td><strong>${decimal(m.iq)}</strong></td><td>${decimal(m.software_iq)} / ${decimal(m.visual_iq)}</td><td>${money(m.average_cost_usd)}</td><td>${finite(m.average_minutes)?Number(m.average_minutes).toFixed(1)+' 分钟':'—'}</td><td>${m.runs_24h??'—'} / ${m.runs_48h??'—'}</td></tr>`).join(''):'<tr><td colspan="7">暂无模型矩阵</td></tr>';const expectedModels={"gpt-6-sol":"GPT-6 Sol","gpt-6-luna":"GPT-6 Luna"};const missingModels=Object.entries(expectedModels).filter(([key])=>!matrix.some(m=>m.model===key)).map(([,label])=>label);document.getElementById("modelNotice").innerHTML=d.model_radar&&missingModels.length?`上游当前未返回 ${missingModels.map(esc).join('、')} 的公开实测，暂不复制 5.6 分数冒充新模型；接口一旦提供真实数据，矩阵会自动纳入。`:'';
+    const alerts=modelRadar.degradation_alerts||[];document.getElementById("degradation").innerHTML=alerts.length?alerts.map(a=>`<div class="alert-box">${esc(a.model_label||a.model)} · ${esc(a.effort)}：${esc(a.reason_zh||a.reason||'持续低于历史均值')}</div>`).join(''):'<div class="ok-box">当前没有档位触发持续降智阈值。</div>';
+    const health=modelRadar.health||{};document.getElementById("sourceHealth").innerHTML=[['模型众测',health.updated_at,`${health.samples||0} 份综合样本`,health.stale],['Fast 历史',fastRadar.updated_at,`${fastRadar.sample_count||0} 轮配对测试`,fastRadar.stale],['重置预测',f.updated_at,`${f.cadence?.recent_sample||0} 次近期节奏`,ageMinutes(f.updated_at)>30]].map(x=>`<article class="metric"><span class="pill ${x[3]?'red':'green'}">${x[3]?'已过期':'新鲜'}</span><div class="eyebrow" style="margin-top:6px">${x[0]}</div><div>${time(x[1])}</div><div class="hint">${x[2]}</div></article>`).join('');
+    const advice=modelRadar.recommendations||[];document.getElementById("modelAdvice").innerHTML=advice.length?advice.map(x=>`<article class="metric"><div class="eyebrow">${esc(x.title)}</div><div class="value" style="font-size:18px">${esc(x.choice)}</div><div class="hint">综合分 ${decimal(x.iq)}</div></article>`).join(''):'<div class="notice">暂无模型建议</div>';
+    document.getElementById("fastStamp").textContent=(fastRadar.stale?'数据可能过期 · ':'实时公开数据 · ')+time(fastRadar.updated_at);const latest=fastRadar.latest||[],latestNames=latest.map(x=>x.model_label||modelName(x.model));document.getElementById("fastCount").textContent=`${fastRadar.sample_count||0} 轮历史配对测试`;document.getElementById("fastLatestNote").textContent=latest.length?`上游最新一轮返回 ${latest.length} 个模型：${latestNames.join('、')}。其他模型只在历史曲线中展示。`:'上游暂无最新一轮公开配对测试。';document.getElementById("fastRows").innerHTML=latest.length?latest.map(x=>`<tr><td><strong>${esc(x.model_label)}</strong></td><td>${seconds(x.standard_e2e)} → ${seconds(x.fast_e2e)}</td><td><strong>${ratio(x.e2e_speedup)}</strong></td><td>${finite(x.ttft_reduction_percent)?(Number(x.ttft_reduction_percent)>=0?'快':'慢')+' '+Math.abs(Number(x.ttft_reduction_percent)).toFixed(1)+'%':'不可测'}</td><td><strong>${ratio(x.tps_speedup)}</strong></td></tr>`).join(''):'<tr><td colspan="5">暂无 Fast 数据</td></tr>';document.getElementById("fastHistory").innerHTML=Object.entries(fastRadar.history||{}).map(([k,points])=>`<article class="metric"><div class="eyebrow">${esc((latest.find(x=>x.model===k)||{}).model_label||modelName(k))} · E2E 加速倍数</div>${miniLine(points||[])}</article>`).join('')||'<div class="notice">暂无 Fast 历史</div>';
+    const warnings=d.source_warnings||[];document.getElementById("warnings").innerHTML=warnings.length?`<div class="source-warning">部分公开来源暂时不可用，已保留上次成功数据：${warnings.map(esc).join("、")}</div>`:"";
+  }catch(e){document.getElementById("live").textContent="● 页面读取失败";document.getElementById("warnings").innerHTML=`<div class="source-warning">${esc(e)}</div>`}
+}
+load();setInterval(load,60000);
+</script>
+</body>
+</html>
