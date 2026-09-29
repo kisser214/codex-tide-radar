@@ -10,6 +10,12 @@
 - `tests/`：不依赖网络的回归测试。
 - `skill/`：可安装到 Codex 的维护/部署 Skill。
 
+## 界面预览
+
+![Codex 潮汐雷达仪表盘预览](docs/dashboard-preview.png)
+
+截图展示的是仪表盘的公开数据视图；实际运行时的数值会随上游公开数据更新。
+
 ## 数据与隐私边界
 
 - 只读取无需登录的公开接口；不读取 X、Codex 或 ChatGPT Cookie。
