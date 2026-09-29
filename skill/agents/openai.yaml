@@ -1,0 +1,7 @@
+interface:
+  display_name: "Codex 潮汐雷达"
+  short_description: "维护和部署公开数据 Codex 监控雷达"
+  brand_color: "#0B2A4A"
+  default_prompt: "Use $codex-tide-radar to inspect, test, or deploy the Codex Tide Radar dashboard."
+policy:
+  allow_implicit_invocation: true
